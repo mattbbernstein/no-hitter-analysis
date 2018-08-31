@@ -8,7 +8,7 @@ def ProcessTeamData(year, team):
     infile = "{0}{1}.EV*".format(year,team)
     indir = "{0}Data".format(year)
     run(["BEVENT","-y",str(year),infile],stdout=output,cwd=indir)
-
+    
 def main():
     ProcessTeamData(2017, "CHN")
 

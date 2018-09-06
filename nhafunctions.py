@@ -1,6 +1,6 @@
 # nhafunctions.py
 from subprocess import run,DEVNULL
-from nhaclasses import Game, Play
+from nhaclasses import Game, Play, PitchingAppearance
 import os
 
 def ProcessTeamData(year, team):
@@ -9,22 +9,9 @@ def ProcessTeamData(year, team):
 
     infile = "{0}{1}.EV*".format(year,team)
     indir = "Data"
-    fields = "0,2-4,14,34,37,96"
+    fields = "0,2-4,7,14,34,35,37,40,96"
     run(["BEVENT","-f",fields,"-y",str(year),infile],stdout=output,stderr=DEVNULL,cwd=indir)
     return outfile
-
-def ParsePlayLine(line):
-    fields = line.split(',')
-    game_id = fields[0]
-    inning = int(fields[1])
-    batting_team = int(fields[2])
-    outs = int(fields[3])
-    pitcher = fields[4]
-    event = int(fields[5])
-    hit_val = int(fields[6])
-    play_num = int(fields[7])
-    play = Play(game_id, pitcher, inning, batting_team, outs, event, hit_val, play_num)
-    return play
 
 def ParseEventFile(year, team):
     file_name = ProcessTeamData(year, team)
@@ -33,7 +20,7 @@ def ParseEventFile(year, team):
         line = file.readline()
         current_game = Game()
         while(line):
-            play = ParsePlayLine(line)
+            play = Play(line)
             
             # Special case for first game
             if(current_game.game_id == 0):
@@ -61,15 +48,26 @@ def ParseEventFile(year, team):
 
     return games
 
+def AppearanceFromString(string):
+    fields = string.split(",")
+    app = PitchingAppearance(fields[0],fields[1])
+    app.outs = int(fields[2])
+    app.pitch_count = int(fields[3])
+    app.hbp = int(fields[4])
+    app.bb = int(fields[5])
+    app.first_hit = float(fields[6])
+    app.nh_bid = int(fields[7])
+    app.k = int(fields[8])
+    app.ip = float(fields[9])
+    return app
+
 def PullNoHitBids(games):
     bids = []
     for game in games:
-        if(game.home_nh_bid):
-            record = "{0},{1},{2},{3}".format(game.game_id, game.home_sp, game.home_sp_ip, game.home_sp_nh_lost)
-            bids.append(record)
-        if(game.visitor_nh_bid):
-            record = "{0},{1},{2},{3}".format(game.game_id, game.visitor_sp, game.visitor_sp_ip, game.visitor_sp_nh_lost)
-            bids.append(record)
+        if(game.home_sp.nh_bid > 0):
+            bids.append(game.home_sp)
+        if(game.visitor_sp.nh_bid > 0):
+            bids.append(game.visitor_sp)
     return bids            
 
 def AnalyzeNoHitBids(bids):

@@ -21,13 +21,13 @@ class Game:
         self.home_plays = []
         self.home_sp = ""
         self.home_sp_nh_lost = 0
-        self.home_sp_ip = 0
+        self.home_sp_ip = -1
         self.home_nh_bid = False
 
         self.visitor_plays = []
         self.visitor_sp = ""
         self.visitor_sp_nh_lost = 0
-        self.visitor_sp_ip = 0
+        self.visitor_sp_ip = -1
         self.visitor_nh_bid = False
     
     def AddPlay(self, play):
@@ -47,20 +47,20 @@ class Game:
             pitcher = self.home_sp
             plays = self.visitor_plays
         
-        sp_ip = 0
+        sp_ip = -1
         nh_lost = 0
         for play in plays:
             # If it is still the SP, find the first occurence of a hit
             if play.pitcher == pitcher:
                 if play.hit_value > 0 and nh_lost == 0: 
-                    nh_lost = play.inning
+                    nh_lost = play.inning + (play.outs/3)
             # Otherwise, mark down how many innings he pitched
             else:
                 sp_ip = (play.inning-1) + (play.outs/10)
                 break
         
         # If we never assigned sp_ip, it was a complete game and note as such
-        if sp_ip == 0:
+        if sp_ip == -1:
             sp_ip = plays[-1].inning
 
         if team == "home":
@@ -84,12 +84,4 @@ class Game:
         print("Game: {0}".format(self.game_id))
         print("\tHome:    {0}, {1} IP, Lost in {2}".format(self.home_sp, self.home_sp_ip, self.home_sp_nh_lost))
         print("\tVisitor: {0}, {1} IP, Lost in {2}".format(self.visitor_sp, self.visitor_sp_ip, self.visitor_sp_nh_lost))
-
-
-
-
-
-
-    
-
 

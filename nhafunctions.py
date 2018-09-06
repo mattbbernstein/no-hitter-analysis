@@ -1,13 +1,14 @@
 # nhafunctions.py
 from subprocess import run,DEVNULL
 from nhaclasses import Game, Play
+import os
 
 def ProcessTeamData(year, team):
     outfile = "{0}{1}.txt".format(year,team)
     output = open(outfile,"w")
 
     infile = "{0}{1}.EV*".format(year,team)
-    indir = "{0}Data".format(year)
+    indir = "Data"
     fields = "0,2-4,14,34,37,96"
     run(["BEVENT","-f",fields,"-y",str(year),infile],stdout=output,stderr=DEVNULL,cwd=indir)
     return outfile
@@ -26,7 +27,7 @@ def ParsePlayLine(line):
     return play
 
 def ParseEventFile(year, team):
-    file_name = ProcessTeamData(2017, team)
+    file_name = ProcessTeamData(year, team)
     games = []
     with open(file_name) as file:
         line = file.readline()
@@ -55,7 +56,10 @@ def ParseEventFile(year, team):
         current_game.AnalyzeGame()
         games.append(current_game)
 
-        return games
+    if(os.path.isfile(file_name)):
+        os.remove(file_name)
+
+    return games
 
 def PullNoHitBids(games):
     bids = []
@@ -85,3 +89,18 @@ def AnalyzeNoHitBids(bids):
         else:
             bid_stats[5] += 1
     return bid_stats
+
+def WriteListToFile(items, file_name):
+    outfile = open(file_name, "w")
+    for item in items:
+        outfile.write("{0}\n".format(str(item)))
+    return outfile
+
+def ReadFileToList(file_name):
+    items = []
+    with open(file_name,"r") as infile:
+        line = infile.readline()
+        while(line):
+            items.append(line.strip())
+            line = infile.readline()
+    return items

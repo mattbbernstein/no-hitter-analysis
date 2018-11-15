@@ -1,3 +1,5 @@
+from enum import Enum
+
 # Classes.py
 
 # Play Class
@@ -66,11 +68,11 @@ class PitchingAppearance:
         self.ip = self.outs/3
         if(self.ip >= 5):
             if(self.first_hit >= 5 or self.first_hit == -1):
-                self.nh_bid = 1
+                self.nh_bid = NoHitBidType.BID
                 if(self.first_hit == -1):
-                    self.nh_bid = 2
+                    self.nh_bid = NoHitBidType.ABANDONDED
                     if(self.ip >= 9):
-                        self.nh_bid = 3
+                        self.nh_bid = NoHitBidType.NOHITTER
                         
                 
     
@@ -134,4 +136,8 @@ class Game:
     def __str__(self):
         return "Game: {0}\n\tVis:  {1}\n\tHome: {2}".format(self.game_id, self.visitor_sp, self.home_sp)
         
+class NoHitBidType(Enum):
+    BID = 1
+    ABANDONDED = 2
+    NOHITTER = 3
 

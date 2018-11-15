@@ -1,5 +1,5 @@
 import numpy
-from nhaclasses import PitchingAppearance
+from nhaclasses import NoHitBidType
 
 class BidStats:
 
@@ -20,7 +20,7 @@ class BidStats:
 
     def CalculateCounts(self):
         for bid in self.bids:
-            if(bid.nh_bid == 1):
+            if(bid.nh_bid == NoHitBidType.BID.value):
                 if(5 <= bid.first_hit < 6):
                     self.l6 += 1
                 elif(6 <= bid.first_hit < 7):
@@ -29,9 +29,9 @@ class BidStats:
                     self.l8 += 1
                 elif(bid.first_hit >= 8):
                     self.l9p += 1
-            elif(bid.nh_bid == 2):
+            elif(bid.nh_bid == NoHitBidType.ABANDONDED.value):
                 self.abandoned += 1
-            elif(bid.nh_bid == 3):
+            elif(bid.nh_bid == NoHitBidType.NOHITTER.value):
                 self.no_hitters += 1
             else:
                 print("Undetermined bid: {0}".format(bid))

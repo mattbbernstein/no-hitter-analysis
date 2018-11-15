@@ -1,8 +1,12 @@
 import nhafunctions as nha
-from nhaclasses import Game,Play
+import matplotlib.pyplot as plt
+import scipy.optimize as sp
+import numpy
 from nhastatistics import BidStats
 import os, sys
-import statistics as stats
+
+def exp_decay(x,a,b,c):
+    return a * numpy.exp(-b * x) + c
 
 def GetTeams(year):
     team_file = "Data/TEAM{0}".format(year)
@@ -55,6 +59,25 @@ def main():
     print("Mean: {0:1.2f}\nMedian: {1:1.2f}\nStd Dev: {2:1.4f}".format(bid_stats.meanlost, bid_stats.medianlost, bid_stats.stddevlost))
     print("Top 25%: {0:1.2f}".format(bid_stats.Percentile(75)))
     print("Top 10%: {0:1.2f}".format(bid_stats.Percentile(90)))
+    
+    # Curve and curvefitting
+    pct_nhb = numpy.linspace(100,0,101)
+    inning = []
+    for num in pct_nhb:
+        inning += [bid_stats.Percentile(100-num)]
+        
+    fit_coeff, fit_cov = sp.curve_fit(exp_decay, inning, pct_nhb);  # @UnusedVariable
+    fit_data = [ exp_decay(float(x), *fit_coeff) for x in inning ]
+    print(fit_coeff)
+    actual, = plt.plot(inning, pct_nhb, 'b.')
+    fit,    = plt.plot(inning, fit_data, 'r--')
+    plt.title("Sucessfulness of No Hit Bids")
+    plt.xlabel("No hit innings")
+    plt.ylabel("% of No Hit Bids")
+    fit_str = "{0:.3f} e ^ (-{1:.3f} * x) + {2:.3f}".format(*fit_coeff)
+    plt.legend([actual, fit], ["Actual Data", "Exponential Fit\n"+fit_str])
+    plt.show()
+    
 
 
 

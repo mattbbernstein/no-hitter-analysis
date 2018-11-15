@@ -1,5 +1,3 @@
-from enum import Enum
-
 # Classes.py
 
 # Play Class
@@ -27,7 +25,7 @@ class Play:
         # UNLESS it didnt end and the 3rd out happened (CS for 3rd out)
         # then these pitches count
         if(self.pa_ended == 0 and (self.outs_recorded + self.outs != 3)):
-          return 0
+            return 0
         
         seq = self.pitch_sequence
         for char in "+*.123>N":
@@ -44,7 +42,7 @@ class PitchingAppearance:
         self.pitch_count = 0
         self.hbp = 0
         self.bb = 0
-        self.first_hit = -1
+        self.first_hit_inning = -1
         self.nh_bid = 0
         self.k = 0
         self.ip = -1
@@ -59,20 +57,20 @@ class PitchingAppearance:
             self.bb += 1
         if(play.event == 16):
             self.hbp += 1
-        if(play.hit_value > 0 and self.first_hit == -1):
-            self.first_hit = self.outs/3
+        if(play.hit_value > 0 and self.first_hit_inning == -1):
+            self.first_hit_inning = self.outs/3
         self.outs += play.outs_recorded
         self.pitch_count += play.pitch_count
     
     def EndAppearance(self):
         self.ip = self.outs/3
         if(self.ip >= 5):
-            if(self.first_hit >= 5 or self.first_hit == -1):
-                self.nh_bid = NoHitBidType.BID
-                if(self.first_hit == -1):
-                    self.nh_bid = NoHitBidType.ABANDONDED
+            if(self.first_hit_inning >= 5 or self.first_hit_inning == -1):
+                self.nh_bid = 1
+                if(self.first_hit_inning == -1):
+                    self.nh_bid = 2
                     if(self.ip >= 9):
-                        self.nh_bid = NoHitBidType.NOHITTER
+                        self.nh_bid = 3
                         
                 
     
@@ -83,7 +81,7 @@ class PitchingAppearance:
                                                               self.pitch_count, \
                                                               self.hbp, \
                                                               self.bb,  \
-                                                              self.first_hit, \
+                                                              self.first_hit_inning, \
                                                               self.nh_bid, \
                                                               self.k, \
                                                               self.ip)
@@ -135,9 +133,3 @@ class Game:
     
     def __str__(self):
         return "Game: {0}\n\tVis:  {1}\n\tHome: {2}".format(self.game_id, self.visitor_sp, self.home_sp)
-        
-class NoHitBidType(Enum):
-    BID = 1
-    ABANDONDED = 2
-    NOHITTER = 3
-

@@ -55,7 +55,7 @@ def AppearanceFromString(string):
     app.pitch_count = int(fields[3])
     app.hbp = int(fields[4])
     app.bb = int(fields[5])
-    app.first_hit = float(fields[6])
+    app.first_hit_inning = float(fields[6])
     app.nh_bid = int(fields[7])
     app.k = int(fields[8])
     app.ip = float(fields[9])

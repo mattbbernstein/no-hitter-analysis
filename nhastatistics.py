@@ -1,7 +1,6 @@
-import numpy
-from nhaclasses import NoHitBidType
+import numpy as np
 
-class BidStats:
+class HolisticCountData:
 
     def __init__(self,raw_list):
         self.bids = raw_list
@@ -20,32 +19,31 @@ class BidStats:
 
     def CalculateCounts(self):
         for bid in self.bids:
-            if(bid.nh_bid == NoHitBidType.BID.value):
-                if(5 <= bid.first_hit < 6):
+            if(bid.nh_bid == 1):
+                if(5 <= bid.first_hit_inning < 6):
                     self.l6 += 1
-                elif(6 <= bid.first_hit < 7):
+                elif(6 <= bid.first_hit_inning < 7):
                     self.l7 += 1
-                elif(7 <= bid.first_hit < 8):
+                elif(7 <= bid.first_hit_inning < 8):
                     self.l8 += 1
-                elif(bid.first_hit >= 8):
+                elif(bid.first_hit_inning >= 8):
                     self.l9p += 1
-            elif(bid.nh_bid == NoHitBidType.ABANDONDED.value):
+            elif(bid.nh_bid == 2):
                 self.abandoned += 1
-            elif(bid.nh_bid == NoHitBidType.NOHITTER.value):
+            elif(bid.nh_bid == 3):
                 self.no_hitters += 1
             else:
                 print("Undetermined bid: {0}".format(bid))
 
     def BasicStatistics(self):
-        self.lostdata = []
-        for bid in self.bids:
-            if(bid.nh_bid == 1):
-                self.lostdata.append(bid.first_hit)
-        
-        self.meanlost = numpy.mean(self.lostdata)
-        self.medianlost = numpy.median(self.lostdata)
-        self.stddevlost = numpy.std(self.lostdata)
+        self.nh_lost_list = [bid.first_hit_inning for bid in self.bids if bid.nh_bid == 1]
+    
+        self.meanlost = np.mean(self.nh_lost_list)
+        self.medianlost = np.median(self.nh_lost_list)
+        self.stddevlost = np.std(self.nh_lost_list)
 
     def Percentile(self,percent):
-        return numpy.percentile(self.lostdata, percent)
+        return np.percentile(self.nh_lost_list, percent)
+    
+    
 

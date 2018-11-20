@@ -9,7 +9,7 @@ def ProcessTeamData(year, team):
 
     infile = "{0}{1}.EV*".format(year,team)
     indir = "Data"
-    fields = "0,2-4,7,14,34,35,37,40,96"
+    fields = "0,2-4,7,14,34,35,37,40,47,96"
     run(["BEVENT","-f",fields,"-y",str(year),infile],stdout=output,stderr=DEVNULL,cwd=indir)
     return outfile
 
@@ -59,6 +59,8 @@ def AppearanceFromString(string):
     app.nh_bid = int(fields[7])
     app.k = int(fields[8])
     app.ip = float(fields[9])
+    app.bip = int(fields[10])
+    app.gb = int(fields[11])
     return app
 
 def PullNoHitBids(games):
@@ -90,6 +92,7 @@ def AnalyzeNoHitBids(bids):
 
 def WriteListToFile(items, file_name):
     outfile = open(file_name, "w")
+    outfile.write("GameID,Pitcher,Outs,PitchCount,HBP,BB,FirstHitInning,NoHitBid,K,IP,GB,BallsInPlay\n")
     for item in items:
         outfile.write("{0}\n".format(str(item)))
     return outfile
@@ -97,6 +100,7 @@ def WriteListToFile(items, file_name):
 def ReadFileToList(file_name):
     items = []
     with open(file_name,"r") as infile:
+        infile.readline()
         line = infile.readline()
         while(line):
             items.append(line.strip())

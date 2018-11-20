@@ -47,3 +47,25 @@ class HolisticCountData:
     
     
 
+class BidSetStatistics:
+    
+    def __init__(self, blist):
+        self.bid_list = blist
+        self.pc_list = [(bid.pitch_count)/bid.ip for bid in self.bid_list]
+        self.b_list = [(bid.bb + bid.hbp)/bid.ip for bid in self.bid_list]
+        self.k_list = [(bid.k)/bid.ip for bid in self.bid_list]
+        self.gb_list = [(bid.gb/bid.bip) for bid in self.bid_list]
+        self.means = {}
+        self.std_devs = {}
+        self.RunStatistics();
+        
+    def RunStatistics(self):
+        self.means["pc"] = np.mean(self.pc_list)
+        self.means["b"] = np.mean(self.b_list)
+        self.means["k"] = np.mean(self.k_list)
+        self.means["gb"] = np.mean(self.gb_list)
+        
+        self.std_devs["pc"] = np.std(self.pc_list)
+        self.std_devs["b"] = np.std(self.b_list)
+        self.std_devs["k"] = np.std(self.k_list)
+        self.std_devs["gb"] = np.std(self.gb_list)

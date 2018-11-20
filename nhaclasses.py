@@ -17,7 +17,8 @@ class Play:
         self.pa_ended = 1 if "T" in fields[7] else 0
         self.hit_value = int(fields[8])
         self.outs_recorded = int(fields[9])
-        self.play = int(fields[10])
+        self.batted_ball_type = fields[10].strip("\"")
+        self.play = int(fields[11])
         self.pitch_count = self.GetPitchCount()
 
     def GetPitchCount(self):
@@ -39,6 +40,8 @@ class PitchingAppearance:
         self.game_id = game_id
         self.pitcher = name
         self.outs = 0
+        self.gb = 0
+        self.bip = 0
         self.pitch_count = 0
         self.hbp = 0
         self.bb = 0
@@ -61,6 +64,10 @@ class PitchingAppearance:
             self.first_hit_inning = self.outs/3
         self.outs += play.outs_recorded
         self.pitch_count += play.pitch_count
+        if(play.batted_ball_type):
+            self.bip += 1
+            if("G" in play.batted_ball_type):
+                self.gb += 1
     
     def EndAppearance(self):
         self.ip = self.outs/3
@@ -75,7 +82,7 @@ class PitchingAppearance:
                 
     
     def __str__(self):
-        return "{},{},{},{},{},{},{:.2f},{},{},{:.2f}".format(self.game_id, \
+        return "{},{},{},{},{},{},{:.2f},{},{},{:.2f},{},{}".format(self.game_id, \
                                                               self.pitcher, \
                                                               self.outs,    \
                                                               self.pitch_count, \
@@ -84,7 +91,9 @@ class PitchingAppearance:
                                                               self.first_hit_inning, \
                                                               self.nh_bid, \
                                                               self.k, \
-                                                              self.ip)
+                                                              self.ip, \
+                                                              self.bip, \
+                                                              self.gb)
 
 class Game:
 

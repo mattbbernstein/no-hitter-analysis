@@ -92,7 +92,7 @@ def AnalyzeNoHitBids(bids):
 
 def WriteListToFile(items, file_name):
     outfile = open(file_name, "w")
-    outfile.write("GameID,Pitcher,Outs,PitchCount,HBP,BB,FirstHitInning,NoHitBid,K,IP,GB,BallsInPlay\n")
+    outfile.write("GameID,Pitcher,Outs,PitchCount,HBP,BB,FirstHitInning,NoHitBid,K,IP,BallsInPlay,GB\n")
     for item in items:
         outfile.write("{0}\n".format(str(item)))
     return outfile

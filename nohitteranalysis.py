@@ -48,14 +48,14 @@ def GetTeams(year):
 def main():
     if(os.path.isfile("bids.csv")):
         print("Importing bids from file")
-        bid_strings = nha.ReadFileToList("bids.txt")
+        bid_strings = nha.ReadFileToList("bids.csv")
         bids = []
         for string in bid_strings:
             bids.append(nha.AppearanceFromString(string))
     else:
         print("No bids file found, analyzing games:")
         games = []
-        for year in range(2000,2018):
+        for year in range(2000,2019):
             print("\t> {}".format(year))
             teams = GetTeams(year)
             for team in teams:

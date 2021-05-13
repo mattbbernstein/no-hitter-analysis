@@ -1,9 +1,9 @@
-# Title: No Hitter Likeliness
-# File: no_hitter_likeliness.R
+# Title: Calculate No Hitter Likeliness
+# File: CalculateNoHitterLikeliness.R
 # Project: No Hitter Quality
 
 # LOAD PACKAGES ####
-CalculateNoHitterLikeliness <- function(game_date_str, team_name) {
+CalculateNoHitterLikeliness <- function(game_date_str, team_name, dh_game) {
   if(!require("pacman")) install.packages("pacman")
   pacman::p_load(pacman, tidyverse, dplyr)
   if(!require("baseballr")) pacman::p_install_gh("BillPetti/baseballr")
@@ -15,13 +15,22 @@ CalculateNoHitterLikeliness <- function(game_date_str, team_name) {
   
   # GET GAME ID ####
   
-  daily_games <- get_game_pks_mlb(game_date) %>% 
-    select(game_pk, home_team = teams.home.team.name, away_team = teams.away.team.name)
+  daily_games <- get_game_pks_mlb("2015-10-03") %>% 
+    select(game_pk, gameDate, home_team = teams.home.team.name, away_team = teams.away.team.name, doubleHeader) %>%
+    arrange(gameDate)
   index <- which(daily_games == team_name , arr.ind = TRUE)
-  my_game_pk = daily_games[index[1], "game_pk"]
-  # If the team was the home team, they they pitched in the top of the inning
-  # otherwise they were in the bottom
-  my_inning_topbot <- if(index[2] == 2) "Top" else "Bot"
+  
+  # Get the game pk and inning of the no hitter team pitcher
+  if(dh_game == 0) {
+    my_game_pk = daily_games[index[1], "game_pk"]
+    my_inning_topbot <- if(index[2] == 2) "Top" else "Bot"
+  } else if (dh_game == 1) {
+    my_game_pk = daily_games[index[1,1], "game_pk"]
+    my_inning_topbot <- if(index[1,2] == 2) "Top" else "Bot"
+  } else if (dh_game == 2) {
+    my_game_pk = daily_games[index[2,1], "game_pk"]
+    my_inning_topbot <- if(index[2,2] == 2) "Top" else "Bot"
+  }
   
   # GET NO HITTER PITCH F/X DATA
   cols <- c("game_date", "game_pk", "player_name", "pitcher", "inning_topbot" , "events", "type", "bb_type", "home_team", "away_team", "estimated_ba_using_speedangle", "estimated_woba_using_speedangle")

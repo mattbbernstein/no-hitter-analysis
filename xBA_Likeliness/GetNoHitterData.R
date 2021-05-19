@@ -2,12 +2,13 @@
 # File: GetNoHitterData.R
 # Project: No Hitter Quality
 
-GetNoHitterData <- function(game_date_str, team_name, dh_game, pitcher_first, pitcher_last) {
+GetNoHitterData <- function(game_date_str, team_name, pitcher_first, pitcher_last, dh_flag) {
   if(!require("pacman")) install.packages("pacman")
   pacman::p_load(pacman, tidyverse, dplyr)
   if(!require("baseballr")) pacman::p_install_gh("BillPetti/baseballr")
   pacman::p_load(baseballr)
   
+  message(sprintf("Getting data for: On %s by %s %s of %s", game_date_str, pitcher_first, pitcher_last, team_name))
   game_date <- as.Date(game_date_str)
   
   # Get Game ID
@@ -18,19 +19,20 @@ GetNoHitterData <- function(game_date_str, team_name, dh_game, pitcher_first, pi
   index <- which(daily_games == team_name , arr.ind = TRUE)
   
   # game_pk and inning ####
-  if(dh_game == 0) {
+  if(dh_flag == 0) {
     my_game_pk = daily_games[index[1], "game_pk"]
     my_inning_topbot <- if(index[2] == 3) "Top" else "Bot"
-  } else if (dh_game == 1) {
+  } else if (dh_flag == 1) {
     my_game_pk = daily_games[index[1,1], "game_pk"]
     my_inning_topbot <- if(index[1,2] == 3) "Top" else "Bot"
-  } else if (dh_game == 2) {
+  } else if (dh_flag == 2) {
     my_game_pk = daily_games[index[2,1], "game_pk"]
     my_inning_topbot <- if(index[2,2] == 3) "Top" else "Bot"
   }
   
   # batted ball events ####
-  cols <- c("game_date", "game_pk", "player_name", "pitcher", "inning_topbot" , "events", "type", "bb_type", "home_team", "away_team", "estimated_ba_using_speedangle", "estimated_woba_using_speedangle")
+  cols <- c("game_date", "game_pk", "player_name", "pitcher", "inning_topbot" , "events", "type", "bb_type", "estimated_ba_using_speedangle", "estimated_woba_using_speedangle")
+  message("\tRetrieving batted ball data")
   suppressMessages({
     game_data <- scrape_statcast_savant(start_date = game_date, end_date = game_date) %>%
       select(all_of(cols)) %>%
@@ -45,13 +47,22 @@ GetNoHitterData <- function(game_date_str, team_name, dh_game, pitcher_first, pi
   pitcher_data <- NULL
   player_id <- NULL
   combined_str <- "Combined"
-  if(pitcher_last != combined_str) {
-    player_id_data <- playerid_lookup(pitcher_last) %>% 
-      dplyr::filter(first_name == pitcher_first) %>%
-      select(first_name, last_name, id = mlbam_id)
-    player_id <- player_id_data[[1,3]]
-    pitcher_data <- scrape_statcast_savant_pitcher(start_date = game_date, end_date = game_date, pitcherid = player_id)
-    
+  if(pitcher_first != combined_str) {
+    message("\tRetrieving pitcher data")
+    suppressMessages({
+      player_id_data <- playerid_lookup(pitcher_last) %>% 
+        dplyr::filter(first_name == pitcher_first) %>%
+        select(first_name, last_name, id = mlbam_id)
+      player_id <- player_id_data[[1,3]]
+      pcols <- c("game_date", "game_pk", "player_name", "batter", "events", "description", "type", "hit_location", "bb_type", "hit_distance_sc", "launch_speed", "launch_angle", "estimated_ba_using_speedangle", "estimated_woba_using_speedangle", "barrel")
+      pitcher_data <- scrape_statcast_savant_pitcher(start_date = game_date, end_date = game_date, pitcherid = player_id) %>%
+        select(all_of(pcols)) %>%
+        rename(xBA = estimated_ba_using_speedangle) %>%
+        rename(xwOBA = estimated_woba_using_speedangle)
+    })
+  }
+  else {
+    message("\tNo pitcher data to retrieve")
   }
   
   

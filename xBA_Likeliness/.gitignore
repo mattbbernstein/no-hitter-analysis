@@ -1,3 +1,9 @@
+# User Excluded
+Data/
+*.rds
+*.RData
+*.png
+
 # History files
 .Rhistory
 .Rapp.history

@@ -30,7 +30,7 @@ Using expected batting average (`xBA`) from [MLB's Baseball Savant](https://base
 
 ### Execution
 - `NoHitterDataCollection.R`: Download and save the data
-- `LikelinessAnalysis.R`: Perfrom analsys. Sorted table saved in table `nh_data_index`
+- `LikelinessAnalysis.R`: Perform analysis. Sorted table saved in table `nh_data_index`
 
 ### Discussion
 [Reddit: No-Hitter Luck: A Quick xBA Analysis](https://www.reddit.com/r/baseball/comments/ngk88y/nohitter_luck_a_quick_xba_analysis/)
